@@ -13,7 +13,7 @@ def students_detail():
         name = request.args.get('name')
         age = request.args.get('age')
         print(f"name : {name} , age = {age}")
-        #idd= "student_name"
+        idd= "student_name"
 
         try: 
             if bool(name) == True and bool(age) == True:
