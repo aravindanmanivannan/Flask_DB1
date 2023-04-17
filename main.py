@@ -4,7 +4,6 @@ from config import  mysql
 from flask import jsonify
 from flask import flash, request
 
-
 @app.route('/query_example', methods = ['GET'])
 def students_detail():
     try:
@@ -32,6 +31,7 @@ def students_detail():
             print(f"name : {name} , age = {age}")
             detail = cursor.fetchall()
             print(f"students details : {detail}")
+
             if bool(detail) == True:
                 return  detail
             else:
@@ -58,14 +58,26 @@ def update_students_detail():
             #phone = request.args.get('phone')
             #id = request.args.get('id')
 
+
             print(f"name : {name}, age : {age}, phone : {phone} ,id : {id}")
             print(f"Query update students set student_name = {name}, age={age},phone={phone} where student_id = {id}")
             cursor.execute(f"update students set student_name = {name}, age={age},phone={phone} where student_id = {id}")
             conn.commit()
-            return jsonify('Students updated successfully!')
+
+            cursor.execute("select student_id from students;")
+            data = cursor.fetchall()
+            print(f"data : {data}")
+
+            for i in range(len(data)):
+                if id == (data[i]['student_id']):
+                    return jsonify ("Update Successfully")
+            else:
+                return jsonify ("ID not available")
+
+            #return jsonify('Students updated successfully!')
     except Exception as e:
          print("Details are not updated in the database")
-         return "There is an Error {e}"
+         return f"There is an Error {e}"
     
 @app.route('/delete_example', methods = ['DELETE'])
 def delete_students_detail():
@@ -76,12 +88,24 @@ def delete_students_detail():
 
             id = request.args.get('id')
 
-            cursor.execute(f" delete from students where student_id = {id}")
-            conn.commit()
+            cursor.execute("select student_id from students;")
+            data = cursor.fetchall()
+            print(f"data : {data}")
+
+            for i in range(len(data)):
+                if int(id) == (data[i]['student_id']):
+                    print(f"data inside if {data[i]['student_id']}")
+                    print(f" delete from students where student_id = {id}")
+                    cursor.execute(f" delete from students where student_id = {id}")
+                    conn.commit()
+                    break                 
+            else:
+                print(f"data inside else {data[i]['student_id']}")
+                return jsonify(f"{id} ID not available")
             return jsonify('Deleted successfully!')
     except Exception as e:
         print("Details are not Deleted from the database")
-        return "There is an Error {e}"
+        return f"There is an Error {e}"
 
 if __name__ == "__main__":
     app.run(host ="localhost", port = int("5000"))
